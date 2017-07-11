@@ -99,7 +99,16 @@ local function buildResultObject(batch, rawResults)
             for k, index in ipairs(wordmapping) do
                 for l = 1, #alignments do
                     if alignments[l][2] == index then
-                        table.insert(alignments[l][3], { words[k], false})
+                        local found = false
+                        for m = 1, #alignments[l][3] do
+                            if alignments[l][3][m][1] == words[k]
+                                found = true
+                                break
+                            end
+                        end
+                        if not found then
+                            table.insert(alignments[l][3], { words[k], false})
+                        end
                     end
                 end
             end
