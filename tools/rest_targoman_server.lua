@@ -61,36 +61,51 @@ local function buildResultObject(batch, rawResults)
             translator:buildOutput(batch[i])
         })
 
-        local attention = rawResults[i].preds[1].attention
-        attention = torch.cat(attention, 2)
-        for j = 1, #batch[i].words do
-            local r = attention:narrow(1, j, 1)
-            r:copy(r / r:max())
+
+        local function getWordMapping(attention)
+            local attention = attention
+            attention = torch.cat(attention, 2)
+            for j = 1, #batch[i].words do
+                local r = attention:narrow(1, j, 1)
+                r:copy(r / r:max())
+            end
+            local _, wordmapping = torch.max(attention, 1)
+            wordmapping = torch.totable(wordmapping:storage())
+            return wordmapping
         end
-        print(attention)
-        local _, wordmapping = torch.max(attention, 1)
-        wordmapping = torch.totable(wordmapping:storage())
+
+        local wordmapping = getWordMapping(rawResults[i].preds[1].attention)
         local words = onmt.utils.Features.annotate(rawResults[i].preds[1].words, rawResults[i].preds[1].features)
 
         local phrases = {}
         local alignments = {}
 
-        local j = 0
-        for index in pairs(wordmapping) do
+        for j, index in ipairs(wordmapping) do
             table.insert(phrases, {
                 words[j],
                 j
             })
             table.insert(alignments, {
-                batch[i].words[wordmapping[j]],
-                j,
+                batch[i].words[index],
+                index,
                 {
                     { words[j], true}
                 }
             })
-            j = j + 1
         end
         
+        for j = 2, #rawResults[i].preds do
+            wordmapping = getWordMapping(#rawResults[i].preds[j].attention)
+            words = onmt.utils.Features.annotate(rawResults[i].preds[j].words, rawResults[i].preds[j].features)
+            for k, index in ipairs(wordmapping) do
+                for l = 1, #alignments do
+                    if alignments[l][2] == index then
+                        table.insert(alignments[l][3], { words[k], false})
+                    end
+                end
+            end
+        end
+
         table.insert(results.phrases, phrases)
         table.insert(results.alignments, alignments)
     end
