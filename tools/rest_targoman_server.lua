@@ -62,11 +62,11 @@ local function buildResultObject(batch, rawResults)
         })
 
         local attention = rawResults[i].preds[1].attention
-        for j = 1, #attention do
-            attention[j] = attention[j] / attention[j]:max()
-        end
-        print(attention)
         attention = torch.cat(attention, 2)
+        for j = 1, #batch[i].words do
+            local r = attention:narrow(1, j, 1)
+            r = r / r:max()
+        end
         print(attention)
         local _, wordmapping = torch.max(attention, 1)
         wordmapping = torch.totable(wordmapping:storage())
