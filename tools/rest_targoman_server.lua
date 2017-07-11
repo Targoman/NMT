@@ -90,6 +90,8 @@ local function buildResultObject(batch, rawResults)
             j = j + 1
         end
         
+        table.insert(results.phrases, phrases)
+        table.insert(results.alignments, alignments)
     end
 
     return results
