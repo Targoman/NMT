@@ -118,7 +118,7 @@ local function buildResultObject(batch, rawResults)
         table.insert(results.alignments, alignments)
     end
 
-    return results
+    return { tr = results }
 end
 
 local function translateMessage(translator, lines)
