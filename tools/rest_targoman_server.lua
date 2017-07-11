@@ -61,101 +61,35 @@ local function buildResultObject(batch, rawResults)
             translator:buildOutput(batch[i])
         })
 
-        local _, wordmapping = torch.max(torch.cat(rawResults[i].preds[1].attention, 2), 1)
+        local _, wordmapping = torch.max(
+            torch.cat(
+                rawResults[i].preds[1].attention,
+                2
+            ),
+            1
+        )
         wordmapping = torch.totable(wordmapping:storage())
         local words = onmt.utils.Features.annotate(rawResults[i].preds[1].words, rawResults[i].preds[1].features)
 
-        local inversewordmapping = {}
-        for j = 1, #wordmapping do
-            if not inversewordmapping[wordmapping[j]] then
-                inversewordmapping[wordmapping[j]] = {}
-            end
-            local t = inversewordmapping[wordmapping[j]]
-            if #t == 0 or t[#t] == j - 1 then
-                table.insert(t, j)
-            else
-                if t[1] == j + 1 then
-                    local s = {}
-                    table.insert(s, j)
-                    for v in pairs(t) do
-                        table.insert(s, v)
-                    end
-                    inversewordmapping[wordmapping[j]] = s
-                end
-            end
-        end
-        local function has(t, v)
-            for ov in pairs(t) do
-                if ov == v then
-                    return true
-                end
-            end
-            return false
-        end
-        for j = 2, #wordmapping do
-            local t = inversewordmapping[wordmapping[j]]
-            if not has(t, j) then
-                t = inversewordmapping[wordmapping[j - 1]]
-                table.insert(t, j)
-            end
-        end
+        local phrases = {}
+        local alignments = {}
 
-        local function pairSortedByTranslation(mapping)
-            local order = {}
-            for j = 1, #mapping do
-                if mapping[j] then
-                    table.insert(order, j)
-                end
-            end
-            table.sort(order, function(a, b)
-               local ta = mapping[a]
-               local tb = mapping[b]
-               if ta[#ta] < tb[1] then
-                   return true
-               end
-               return false                return false
-            end)
-            local i = 0
-            local iter = function()
-                i = i + 1
-                if order[i] == nil then
-                    return nil
-                else
-                    return order[i], mapping[order[i]]
-                end
-            end
-            return iter
-        end
-
-        local alignments = { }
-        local l = 1
-        for j, mapping in pairSortedByTranslation(inversewordmapping) do
-            local selectedTranslations = {}
-            for k in pairs(mapping) do
-                table.insert(selectedTranslations, batch[i].words[k])
-            end
-            table.insert(alignments, {
+        local j = 0
+        for index in pairs(wordmapping) do
+            table.insert(phrases, {
                 words[j],
-                l,
-                { { join(selectedTranslations, ' '), true } },
-                {}
+                j
             })
-            l = l + 1
+            table.insert(alignments, {
+                batch[i].words[wordmapping[j]],
+                j,
+                {
+                    { words[j], true}
+                }
+            })
+            j = j + 1
         end
-
-        -- for j = 2, #rawResults[i].preds do
-        --     wordmapping = torch.max(torch.cat(rawResults[i].preds[j].attention, 2), 2)
-        --     words = onmt.utils.Features.annotate(rawResults[i].preds[j].words, rawResults[i].preds[j].features)
-
-        -- end
-
-        table.insert(results.alignments, alignments)
         
-        -- local phrases = {}
-        -- for j = 1, #words do
-        --     table.insert(phrases, { words[j], j })
-        -- end
-        -- table.insert(results.phrases, phrases)        
     end
 
     return results
