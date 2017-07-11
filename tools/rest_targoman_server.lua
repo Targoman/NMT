@@ -61,13 +61,14 @@ local function buildResultObject(batch, rawResults)
             translator:buildOutput(batch[i])
         })
 
-        local _, wordmapping = torch.max(
-            torch.cat(
-                rawResults[i].preds[1].attention,
-                2
-            ),
-            1
-        )
+        local attention = rawResults[i].preds[1].attention
+        for row in pairs(attention) do
+            row = torch.Tensor(row)
+            row = row / row:max()
+        end
+        attention = torch.cat(attention, 2)
+        print(attention)
+        local _, wordmapping = torch.max(attention, 1)
         wordmapping = torch.totable(wordmapping:storage())
         local words = onmt.utils.Features.annotate(rawResults[i].preds[1].words, rawResults[i].preds[1].features)
 
