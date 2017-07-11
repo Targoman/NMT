@@ -101,7 +101,7 @@ local function buildResultObject(batch, rawResults)
                     if alignments[l][2] == index then
                         local found = false
                         for m = 1, #alignments[l][3] do
-                            if alignments[l][3][m][1] == words[k]
+                            if alignments[l][3][m][1] == words[k] then
                                 found = true
                                 break
                             end
