@@ -63,9 +63,9 @@ local function buildResultObject(batch, rawResults)
 
         local attention = rawResults[i].preds[1].attention
         for j = 1, #attention do
-            attention[j] = torch.Tensor(attention[j])
             attention[j] = attention[j] / attention[j]:max()
         end
+        print(attention)
         attention = torch.cat(attention, 2)
         print(attention)
         local _, wordmapping = torch.max(attention, 1)
