@@ -93,17 +93,17 @@ local function buildResultObject(batch, rawResults)
             })
         end
         
-        -- for j = 2, #rawResults[i].preds do
-        --     wordmapping = getWordMapping(#rawResults[i].preds[j].attention)
-        --     words = onmt.utils.Features.annotate(rawResults[i].preds[j].words, rawResults[i].preds[j].features)
-        --     for k, index in ipairs(wordmapping) do
-        --         for l = 1, #alignments do
-        --             if alignments[l][2] == index then
-        --                 table.insert(alignments[l][3], { words[k], false})
-        --             end
-        --         end
-        --     end
-        -- end
+        for j = 2, #rawResults[i].preds do
+            wordmapping = getWordMapping(rawResults[i].preds[j].attention)
+            words = onmt.utils.Features.annotate(rawResults[i].preds[j].words, rawResults[i].preds[j].features)
+            for k, index in ipairs(wordmapping) do
+                for l = 1, #alignments do
+                    if alignments[l][2] == index then
+                        table.insert(alignments[l][3], { words[k], false})
+                    end
+                end
+            end
+        end
 
         table.insert(results.phrases, phrases)
         table.insert(results.alignments, alignments)
