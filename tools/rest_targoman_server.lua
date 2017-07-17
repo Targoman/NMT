@@ -79,18 +79,27 @@ local function buildResultObject(batch, rawResults)
         local phrases = {}
         local alignments = {}
 
+        local phraseIndex = 0
+        local lastIndex
         for j, index in ipairs(wordmapping) do
-            table.insert(phrases, {
-                words[j],
-                j
-            })
-            table.insert(alignments, {
-                batch[i].words[index],
-                index,
-                {
-                    { words[j], true}
-                }
-            })
+            if index == lastIndex then
+                phrases[#phrases][1] = table[#table][1] .. ' ' .. words[j]
+                alignments[#alignments][2][1][1] = alignments[#alignments][2][1][1] .. ' ' .. words[j]
+            else
+                table.insert(phrases, {
+                    words[j],
+                    phraseIndex
+                })
+                table.insert(alignments, {
+                    batch[i].words[index],
+                    index,
+                    {
+                        { words[j], true}
+                    }
+                })
+                phraseIndex = phraseIndex + 1
+            end
+            lastIndex = index
         end
         
         for j = 2, #rawResults[i].preds do
