@@ -83,7 +83,7 @@ local function buildResultObject(batch, rawResults)
         local lastIndex
         for j, index in ipairs(wordmapping) do
             if index == lastIndex then
-                phrases[#phrases][1] = table[#table][1] .. ' ' .. words[j]
+                phrases[#phrases][1] = phrases[#phrases][1] .. ' ' .. words[j]
                 alignments[#alignments][2][1][1] = alignments[#alignments][2][1][1] .. ' ' .. words[j]
             else
                 table.insert(phrases, {
