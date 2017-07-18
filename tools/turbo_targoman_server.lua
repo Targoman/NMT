@@ -166,15 +166,12 @@ local ExampleHandler = class("ExampleHandler", turbo.web.RequestHandler)
 local cjson = require "cjson"
 
 function ExampleHandler:post()
-    local selfCopy = self
-    local thread = turbo.thread.Thread(function(th)
-        print("Request received =======================================")
-        _G.logger:debug("receiving request")
-        local translate = translateMessage(translator, cjson.decode(selfCopy.request.body))
-        _G.logger:debug("sending response")
-        print("======================================= Request Processed")
-        selfCopy:write(translate)
-    end)
+    print("Request received =======================================")
+    _G.logger:debug("receiving request")
+    local translate = translateMessage(translator, cjson.decode(self.request.body))
+    _G.logger:debug("sending response")
+    print("======================================= Request Processed")
+    self:write(translate)
 end
 
 local function main()
