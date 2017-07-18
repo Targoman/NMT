@@ -30,19 +30,41 @@ cmd:text("")
 
 cmd:option('-batchsize', 1000, [[Size of each parallel batch - you should not change except if low memory.]])
 
+local ffi = require("ffi")
+local E4SMT = ffi.load("../Targoman/E4SMT4Lua.so")
+
+ffi.cdef("void tokenize(const char*, char*, int);")
+
 local opt = cmd:parse(arg)
 local translator
 
 local function tokenize(lines)
     local batch = {}
+    local normals = {}
 
     for i = 1, #lines do
+
+        local buffSize = 9 * #lines[i].src
+        local buffer = ffi.new('char[?]', buffSize)
+        E4SMT.tokenize(lines[i].src, buffer, buffSize)
+        local normalLine = ffi.string(buffer)
+
+        for s in normalLine:gmatch("[^\r\n]+") do
+            table.insert(normals, s)
+        end
+
+    end
+
+    for i = 1, #normals do
+
         local tokens = {}
-        for word in lines[i].src:gmatch'([^%s]+)' do
+        for word in normals[i]:gmatch'([^%s]+)' do
             table.insert(tokens, word)
         end
         table.insert(batch, translator:buildInput(tokens))
     end
+
+    collectgarbage()
 
     return batch
 end
