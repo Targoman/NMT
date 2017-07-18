@@ -31,7 +31,7 @@ cmd:text("")
 cmd:option('-batchsize', 1000, [[Size of each parallel batch - you should not change except if low memory.]])
 
 local ffi = require("ffi")
-local E4SMT = ffi.load("../Targoman/E4SMT4Lua.so")
+local E4SMT = ffi.load("./Targoman/E4SMT4Lua.so")
 
 ffi.cdef("void tokenize(const char*, char*, int);")
 
