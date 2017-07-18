@@ -183,7 +183,7 @@ local function main()
     translator = onmt.translate.Translator.new(opt)
     _G.logger:info("Launch server")
 
-    turbo.web.Application({{"^/translator/translate$", ExampleHandler}}):listen(opt.port)
+    turbo.web.Application({{"^/translator/translate$", ExampleHandler}}):listen(tonumber(opt.port))
     turbo.ioloop.instance():start()
 end
 
