@@ -44,12 +44,12 @@ local function tokenize(lines)
 
     for i = 1, #lines do
 
-        local buffSize = 9 * #lines[i].src
-        local buffer = ffi.new('char[?]', buffSize)
-        E4SMT.tokenize(lines[i].src, buffer, buffSize)
-        local normalLine = ffi.string(buffer)
+        --local buffSize = 9 * #lines[i].src
+        --local buffer = ffi.new('char[?]', buffSize)
+        --E4SMT.tokenize(lines[i].src, buffer, buffSize)
+        --local normalLine = ffi.string(buffer)
 
-        for s in normalLine:gmatch("[^\r\n]+") do
+        for s in lines[i].src:gmatch("[^\r\n]+") do
             table.insert(normals, s)
         end
 
