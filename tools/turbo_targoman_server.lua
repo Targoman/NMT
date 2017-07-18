@@ -164,7 +164,7 @@ local turbo = require "turbo"
 
 local ExampleHandler = class("ExampleHandler", turbo.web.RequestHandler)
 
-function ExampleHandler:get()
+function ExampleHandler:post()
     _G.logger:debug("receiving request")
     local translate = translateMessage(translator, req)
     _G.logger:debug("sending response")
