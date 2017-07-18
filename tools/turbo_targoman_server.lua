@@ -166,9 +166,11 @@ local ExampleHandler = class("ExampleHandler", turbo.web.RequestHandler)
 local cjson = require "cjson"
 
 function ExampleHandler:post()
+    print("Request received =======================================")
     _G.logger:debug("receiving request")
     local translate = translateMessage(translator, cjson.decode(self.request.body))
     _G.logger:debug("sending response")
+    print("======================================= Request Processed")
     self:write(translate)
 end
 
