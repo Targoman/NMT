@@ -167,7 +167,7 @@ local cjson = require "cjson"
 
 function ExampleHandler:post()
     _G.logger:debug("receiving request")
-    local translate = translateMessage(translator, cjson.decode self.request.body)
+    local translate = translateMessage(translator, cjson.decode(self.request.body))
     _G.logger:debug("sending response")
     self:write(translate)
 end
